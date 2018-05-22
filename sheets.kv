@@ -1,0 +1,37 @@
+#:set red [1,0,0,1]
+
+<RootWidget>:
+#    btn1: btn1_kv
+    txt1: txt1_kv
+    lbl1: lbl1_kv
+
+    GridLayout:
+        rows: 2
+
+        BoxLayout:
+            spacing: 10
+            height: 50
+            size_hint_y: None
+
+            Label:
+                id: lbl1_kv
+                text: 'Yea baby...!'
+                color: red
+
+        BoxLayout:
+            spacing: 10
+
+            TextInput:
+                id: txt1_kv
+                text: 'Hello world'
+                size_hint_y: None
+                height: 30
+                multiline: False
+                on_text_validate: root.on_enter(txt1_kv)
+
+#            Button:
+#                id: btn1_kv
+#                text: 'btn 1'
+#                on_press: root.btn1_pressed()
+#                on_release: root.btn1_released()
+
