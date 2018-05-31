@@ -1,12 +1,16 @@
 #:set red [1,0,0,1]
+#:set green [0,1,0,1]
+#:set blue [0,0,1,1]
+#:set purple [1,0,1,1]
 
 <RootWidget>:
-#    btn1: btn1_kv
+    btn1: btn1_kv
     txt1: txt1_kv
     lbl1: lbl1_kv
+    lbl2: lbl2_kv
 
     GridLayout:
-        rows: 2
+        rows: 3
 
         BoxLayout:
             spacing: 10
@@ -17,6 +21,32 @@
                 id: lbl1_kv
                 text: 'Yea baby...!'
                 color: red
+
+        FloatLayout:
+            spacing: 10
+
+            Label:
+                id: lbl2_kv
+                text: 'Adding UX...:)'
+                color: green
+
+                pos_hint: {'top': 0.6, 'left': 0.5}
+
+            Button:
+                id: btn1_kv
+                text: 'btn 1'
+
+                #size_hint_y: None
+                #height: 20
+                #size_hint_x: None
+                #width: 50
+
+                size_hint_y: 0.2
+                size_hint_x: 0.1
+                pos_hint: {'top': 0.3, 'right': 0.8}
+
+                on_press: root.btn1_pressed(btn1_kv)
+                on_release: root.btn1_released(btn1_kv)
 
         BoxLayout:
             spacing: 10
@@ -29,9 +59,4 @@
                 multiline: False
                 on_text_validate: root.on_enter(txt1_kv)
 
-#            Button:
-#                id: btn1_kv
-#                text: 'btn 1'
-#                on_press: root.btn1_pressed()
-#                on_release: root.btn1_released()
 

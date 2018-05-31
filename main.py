@@ -27,6 +27,24 @@ green = [0,1,0,1]
 blue =  [0,0,1,1]
 purple = [1,0,1,1]
 
+def getSheetHeadings(self):
+    # 31/5/18 DH: Such a sweeeet python built-in function...filter()...:)
+    headings = filter(None, self.sheet.row_values(1))
+    lastCol = len(headings)
+    print 'Last col: ' + str(lastCol)
+
+    order = self.sheet.cell(1,lastCol)
+    print('Col order: ' + order.value)
+    self.txt1.text = order.value
+
+    # The last col heading contains the last used field display order
+    self.lbl2.text = ''
+    for col in range(1,lastCol):
+        heading = self.sheet.cell(1,col)
+        print ('Col ' + str(col) + ' = ' + heading.value)
+
+        self.lbl2.text += str(col) + ' = ' + heading.value + '\n'
+
 def populateCarousel(self):
     # 20/2/18 DH: Just starting to refactor the hack...XP, all the way...
     try:
@@ -38,17 +56,21 @@ def populateCarousel(self):
 
         self.sheet = client.open("Addresses").worksheet("Personal")
 
-        # 8/3/18 DH: Adding in display details stored within the sheet
-        order = self.sheet.cell(1,8)
-        print('Col order: ' + order.value)
-        self.txt1.text = order.value
+        # 31/5/18 DH:Now dynamically getting table headings + display order
+        getSheetHeadings(self)
 
-        list_of_dicts = self.sheet.get_all_records()
-        record_num = len(list_of_dicts)
-        self.lbl1.text = str(record_num) + ' records'
+        print 'Prob faster to get record number directly rather than via all records'
+        self.list_of_dicts = self.sheet.get_all_records()
+        self.record_num = len(self.list_of_dicts)
+        self.lbl1.text = str(self.record_num) + ' records'
+
+        # 29/5/18 DH: Create empty array for record dicts
+        self.colsDictDB = []
+        # 29/5/18 DH: Create empty array for label slides to removed on repopulateCarousel()
+        self.labels = []
 
         # === Rows ===
-        for idx in range(0,record_num):
+        for idx in range(0,self.record_num):
             lbl = Label()
             values = self.sheet.row_values(idx+2)
             if values:
@@ -68,11 +90,18 @@ def populateCarousel(self):
                 #print "Adding: " + lbl.text
                 self.add_widget(lbl)
 
+                # 29/5/18 DH: Add dict to dict array
+                self.colsDictDB.append(colsIndexed)
+
+                self.labels.append(lbl)
+
     except AttributeError:
         self.lbl1.text = str(sys.exc_info()[1])
 
     except:
         self.lbl1.text='Error with Google Sheets!'
+        # 29/5/18 DH: Debug only
+        raise
 
 
 class RootWidget(Carousel):
@@ -82,24 +111,60 @@ class RootWidget(Carousel):
         super(RootWidget, self).__init__(**kwargs)
 
         # 14/4/18 DH: Shift to kv file
-        #btn1 = ObjectProperty(None)
+        btn1 = ObjectProperty(None)
         # 21/5/18 DH: next step to shift...
         txt1 = ObjectProperty(None)
         lbl1 = ObjectProperty(None)
+        # 30/5/18 DH: Adding a bit more UX (User Experience)
+        lbl2 = ObjectProperty(None)
 
         # 24/2/18 DH: Carousel
         self.direction='right'
 
         populateCarousel(self)
 
-    def on_enter(instance, txtinput):
+    def repopulateCarousel(self):
+        try:
+            #print self.colsDictDB
+
+            #self.clear_widgets()
+            labelsNew = []
+
+            for idx in range(0,self.record_num):
+                #print self.colsDictDB[idx]
+                self.remove_widget(self.labels[idx])
+
+                lbl = Label()
+
+                cols = self.txt1.text.split(",")
+                for col in cols:
+                    try:
+                        print('Recol: ' + col + '= ' + self.colsDictDB[idx].get(int(col)) )
+                        lbl.text += self.colsDictDB[idx].get(int(col)) + '\n'
+                    except:
+                        print(str(sys.exc_info()[1]))
+
+                self.add_widget(lbl)
+                labelsNew.append(lbl)
+                print('--------------')
+
+            self.labels = labelsNew
+            self.lbl1.text='Repopulating carousel: job\'s a good\'n...:)'
+
+        except:
+            self.lbl1.text='Error repopulating carousel!'
+            # 29/5/18 DH: Debug only
+            #raise
+
+    def on_enter(self, txtinput):
         print('Order: ' + txtinput.text)
+        self.repopulateCarousel()
 
     def cstbtn_pressed(self, instance, pos):
         #print ('pos: printed from root widget: {pos}'.format(pos=pos))
         self.btn1.text='pos: {pos}'.format(pos=pos)
 
-    def btn2_pressed(self, instance):
+    def btn1_pressed(self, instance):
         try:
             list_of_dicts = self.sheet.get_all_records()
             record_num = len(list_of_dicts)
@@ -110,7 +175,7 @@ class RootWidget(Carousel):
         except:
             instance.text = str(sys.exc_info()[0])
 
-    def btn2_released(self, instance):
+    def btn1_released(self, instance):
         instance.text="Totally Google Sheets...:)"
 
 
