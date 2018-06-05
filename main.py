@@ -22,6 +22,10 @@ Logger.info('DH:'+str(sys.version))
 
 from oauth2client.service_account import ServiceAccountCredentials
 
+#from kivy.config import Config
+#Config.set('graphics', 'width', '1440')
+#Config.set('graphics', 'height', '2560')
+
 red = [1,0,0,1]
 green = [0,1,0,1]
 blue =  [0,0,1,1]
@@ -33,7 +37,8 @@ def getSheetHeadings(self):
     lastCol = len(headings)
     print 'Last col: ' + str(lastCol)
 
-    order = self.sheet.cell(1,lastCol)
+    self.orderCell = [1,lastCol]
+    order = self.sheet.cell(self.orderCell[0], self.orderCell[1])
     print('Col order: ' + order.value)
     self.txt1.text = order.value
 
@@ -112,6 +117,7 @@ class RootWidget(Carousel):
 
         # 14/4/18 DH: Shift to kv file
         btn1 = ObjectProperty(None)
+
         # 21/5/18 DH: next step to shift...
         txt1 = ObjectProperty(None)
         lbl1 = ObjectProperty(None)
@@ -160,15 +166,15 @@ class RootWidget(Carousel):
         print('Order: ' + txtinput.text)
         self.repopulateCarousel()
 
-    def cstbtn_pressed(self, instance, pos):
-        #print ('pos: printed from root widget: {pos}'.format(pos=pos))
-        self.btn1.text='pos: {pos}'.format(pos=pos)
 
     def btn1_pressed(self, instance):
         try:
-            list_of_dicts = self.sheet.get_all_records()
-            record_num = len(list_of_dicts)
-            instance.text = str(record_num) + ' records'
+            self.btn1Txt = instance.text
+            instance.text = self.txt1.text
+
+            # order = self.sheet.cell(self.orderCell[0], self.orderCell[1])
+            # sheet.update_cell(1, 2, origValue)
+            self.sheet.update_cell(self.orderCell[0], self.orderCell[1], self.txt1.text)
 
         except AttributeError:
             instance.text = str(sys.exc_info()[1])
@@ -176,7 +182,13 @@ class RootWidget(Carousel):
             instance.text = str(sys.exc_info()[0])
 
     def btn1_released(self, instance):
-        instance.text="Totally Google Sheets...:)"
+        instance.text=self.btn1Txt
+
+    # -------------------------------------------------------------------------------------------------
+    # 5/6/18 DH: Kept in with 'class CustomBtn(Widget)' for ref (even though not currently using it...)
+    def cstbtn_pressed(self, instance, pos):
+        #print ('pos: printed from root widget: {pos}'.format(pos=pos))
+        self.btn1.text='pos: {pos}'.format(pos=pos)
 
 
 class CustomBtn(Widget):

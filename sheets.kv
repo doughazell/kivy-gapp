@@ -1,62 +1,73 @@
+# Samsung Galaxy s6: W=1440 px, H=2560 px
+
 #:set red [1,0,0,1]
 #:set green [0,1,0,1]
 #:set blue [0,0,1,1]
 #:set purple [1,0,1,1]
 
+#:set updateBtnTxt 'Update default order'
+
 <RootWidget>:
+    # https://kivy.org/docs/guide/lang.html:
+    # At this point property is None due to 'ObjectProperty(None)' in class def.
+    # Property is updated in Kv lang to hold the instance of the widget referenced by the id
+
+    # Property: id
     btn1: btn1_kv
     txt1: txt1_kv
     lbl1: lbl1_kv
     lbl2: lbl2_kv
 
-    GridLayout:
-        rows: 3
+    FloatLayout:
 
-        BoxLayout:
-            spacing: 10
-            height: 50
-            size_hint_y: None
+        TextInput:
+            id: txt1_kv
+            text: 'Hello world'
+            # 1/6/18 DH: Putting it here makes BoxLayout wider
+            #size_hint_y: None
+            #height: 100
 
-            Label:
-                id: lbl1_kv
-                text: 'Yea baby...!'
-                color: red
+            size_hint_y: 0.1
+            pos_hint: {'top': 1}
 
-        FloatLayout:
-            spacing: 10
+            multiline: False
+            on_text_validate: root.on_enter(txt1_kv)
 
-            Label:
-                id: lbl2_kv
-                text: 'Adding UX...:)'
-                color: green
+        Label:
+            id: lbl1_kv
+            text: 'Yea baby...!'
+            color: red
 
-                pos_hint: {'top': 0.6, 'left': 0.5}
+            size_hint_y: 0.1
+            pos_hint: {'top': 0.9}
 
-            Button:
-                id: btn1_kv
-                text: 'btn 1'
-
-                #size_hint_y: None
-                #height: 20
-                #size_hint_x: None
-                #width: 50
-
-                size_hint_y: 0.2
-                size_hint_x: 0.1
-                pos_hint: {'top': 0.3, 'right': 0.8}
-
-                on_press: root.btn1_pressed(btn1_kv)
-                on_release: root.btn1_released(btn1_kv)
-
-        BoxLayout:
-            spacing: 10
-
-            TextInput:
-                id: txt1_kv
-                text: 'Hello world'
-                size_hint_y: None
-                height: 30
-                multiline: False
-                on_text_validate: root.on_enter(txt1_kv)
+            #canvas.before:
+            #    Color:
+            #        rgba: blue
+            #    Rectangle:
+            #        pos: self.pos
+            #        size: self.size
 
 
+        Label:
+            id: lbl2_kv
+            text: 'Adding UX...:)'
+            color: green
+
+            pos_hint: {'top': 1, 'left': 0.5}
+
+        Button:
+            id: btn1_kv
+            text: updateBtnTxt
+
+            #size_hint_y: None
+            #height: 20
+            #size_hint_x: None
+            #width: 50
+
+            size_hint_y: 0.15
+            size_hint_x: 0.4
+            pos_hint: {'top': 0.3, 'right': 0.7}
+
+            on_press: root.btn1_pressed(btn1_kv)
+            on_release: root.btn1_released(btn1_kv)
