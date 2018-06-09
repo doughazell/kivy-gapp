@@ -31,24 +31,63 @@ green = [0,1,0,1]
 blue =  [0,0,1,1]
 purple = [1,0,1,1]
 
+# 8/6/18 DH: Populate lookup for Col ID's
 def getSheetHeadings(self):
     # 31/5/18 DH: Such a sweeeet python built-in function...filter()...:)
+
+    print 'REQUEST TO DB for row 1 (ie headings)'
     headings = filter(None, self.sheet.row_values(1))
+
     lastCol = len(headings)
     print 'Last col: ' + str(lastCol)
 
     self.orderCell = [1,lastCol]
+
+    print 'REQUEST TO DB for cell ' + str(self.orderCell[0]) + ',' + str(self.orderCell[1])
     order = self.sheet.cell(self.orderCell[0], self.orderCell[1])
+
     print('Col order: ' + order.value)
     self.txt1.text = order.value
 
     # The last col heading contains the last used field display order
     self.lbl2.text = ''
     for col in range(1,lastCol):
+
+        print 'REQUEST TO DB for cell 1,' + str(col)
         heading = self.sheet.cell(1,col)
+
         print ('Col ' + str(col) + ' = ' + heading.value)
 
         self.lbl2.text += str(col) + ' = ' + heading.value + '\n'
+
+def getHeadings(self):
+    '''
+    print self.list_of_dicts
+
+    print '-----------------------------'
+    keyList = sorted(self.list_of_dicts[0].keys())
+    print keyList
+    print keyList[0]
+    print '-----------------------------'
+    '''
+
+    print 'REQUEST TO DB for row 1 (ie headings)'
+    headings = filter(None, self.sheet.row_values(1))
+
+    order = headings.pop()
+    print 'Order: ' + order
+    self.txt1.text = order
+
+    self.lbl2.text = ''
+    self.hdsIndexed = {}
+    col = 1
+    for heading in headings:
+        self.hdsIndexed[col] = heading
+        #print ('Col ' + str(col) + ' = ' + heading)
+
+        self.lbl2.text += str(col) + ' = ' + heading + '\n'
+        col += 1
+    #print self.hdsIndexed
 
 def populateCarousel(self):
     # 20/2/18 DH: Just starting to refactor the hack...XP, all the way...
@@ -59,44 +98,54 @@ def populateCarousel(self):
         creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
         client = gspread.authorize(creds)
 
+        print 'Opening \'Addresses:Personal\'...'
         self.sheet = client.open("Addresses").worksheet("Personal")
 
-        # 31/5/18 DH:Now dynamically getting table headings + display order
-        getSheetHeadings(self)
+        print 'REQUEST TO DB for all records'
+        self.list_of_dicts = self.sheet.get_all_records(head=1)
 
-        print 'Prob faster to get record number directly rather than via all records'
-        self.list_of_dicts = self.sheet.get_all_records()
         self.record_num = len(self.list_of_dicts)
         self.lbl1.text = str(self.record_num) + ' records'
 
-        # 29/5/18 DH: Create empty array for record dicts
-        self.colsDictDB = []
+        # 31/5/18 DH:Now dynamically getting table headings + display order
+        #getSheetHeadings(self)
+        getHeadings(self)
+
         # 29/5/18 DH: Create empty array for label slides to removed on repopulateCarousel()
         self.labels = []
 
+        cols = self.txt1.text.split(",")
         # === Rows ===
         for idx in range(0,self.record_num):
             lbl = Label()
-            values = self.sheet.row_values(idx+2)
+
+            #print 'REQUEST TO DB for row ' + str(idx+2)
+            #values = self.sheet.row_values(idx+2)
+
+            values = self.list_of_dicts[idx]
+
             if values:
                 # ||| Cols |||
+
                 # 22/3/18 DH: Selected cols added as specified in TextInput 'txt1'
-                colsIndexed = dict(zip(range(1,8), values))
+                #colsIndexed = dict(zip(range(1,8), values))
 
-                cols = self.txt1.text.split(",")
+                #print '-----------------------------'
+                #print values
+                #print self.hdsIndexed
+
                 for col in cols:
-                    lbl.text += colsIndexed.get(int(col)) + '\n'
+                    #ROW: values = self.list_of_dicts[idx]
+                    #COL HEADINGS: self.hdsIndexed
+                    #print str(col) + ' = ' + self.hdsIndexed.get(int(col)) + ' = ' + values.get(self.hdsIndexed.get(int(col)))
+                    #print '-----------------------------'
 
-                #for i in range(5):
-                #    value = values.pop(2)
-                #    lbl.text += value + '\n'
+                    #lbl.text += colsIndexed.get(int(col)) + '\n'
+                    lbl.text += values.get(self.hdsIndexed.get(int(col))) + '\n'
 
                 # Add record to carousel
                 #print "Adding: " + lbl.text
                 self.add_widget(lbl)
-
-                # 29/5/18 DH: Add dict to dict array
-                self.colsDictDB.append(colsIndexed)
 
                 self.labels.append(lbl)
 
@@ -106,7 +155,7 @@ def populateCarousel(self):
     except:
         self.lbl1.text='Error with Google Sheets!'
         # 29/5/18 DH: Debug only
-        raise
+        #raise
 
 
 class RootWidget(Carousel):
@@ -131,28 +180,37 @@ class RootWidget(Carousel):
 
     def repopulateCarousel(self):
         try:
-            #print self.colsDictDB
-
             #self.clear_widgets()
             labelsNew = []
 
+            cols = self.txt1.text.split(",")
             for idx in range(0,self.record_num):
                 #print self.colsDictDB[idx]
                 self.remove_widget(self.labels[idx])
 
                 lbl = Label()
 
-                cols = self.txt1.text.split(",")
+                values = self.list_of_dicts[idx]
+
                 for col in cols:
                     try:
-                        print('Recol: ' + col + '= ' + self.colsDictDB[idx].get(int(col)) )
-                        lbl.text += self.colsDictDB[idx].get(int(col)) + '\n'
+                        #populateCarousel():
+                        # ROW: values = self.list_of_dicts[idx]
+                        # COL HEADINGS: self.hdsIndexed
+                        # lbl.text += values.get(self.hdsIndexed.get(int(col))) + '\n'
+
+                        # --- Orig ---
+                        #print('Recol: ' + col + '= ' + self.colsDictDB[idx].get(int(col)) )
+                        #lbl.text += self.colsDictDB[idx].get(int(col)) + '\n'
+                        # ------------
+                        #print('Recol: ' + col + '= ' + values.get(self.hdsIndexed.get(int(col))) )
+                        lbl.text += values.get(self.hdsIndexed.get(int(col))) + '\n'
                     except:
                         print(str(sys.exc_info()[1]))
 
                 self.add_widget(lbl)
                 labelsNew.append(lbl)
-                print('--------------')
+                #print('--------------')
 
             self.labels = labelsNew
             self.lbl1.text='Repopulating carousel: job\'s a good\'n...:)'
@@ -172,9 +230,9 @@ class RootWidget(Carousel):
             self.btn1Txt = instance.text
             instance.text = self.txt1.text
 
-            # order = self.sheet.cell(self.orderCell[0], self.orderCell[1])
-            # sheet.update_cell(1, 2, origValue)
             self.sheet.update_cell(self.orderCell[0], self.orderCell[1], self.txt1.text)
+
+            self.lbl1.text = 'Google sheets updated with: ' + self.txt1.text
 
         except AttributeError:
             instance.text = str(sys.exc_info()[1])
@@ -182,6 +240,7 @@ class RootWidget(Carousel):
             instance.text = str(sys.exc_info()[0])
 
     def btn1_released(self, instance):
+        #time.sleep(2)
         instance.text=self.btn1Txt
 
     # -------------------------------------------------------------------------------------------------
