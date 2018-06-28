@@ -1,0 +1,39 @@
+<Table>:
+    table_carousel: table_carousel_kv
+    btnAdmin: btnAdmin_kv
+
+    FloatLayout:
+
+        Carousel:
+            id: table_carousel_kv
+
+            #direction: 'left'
+
+            #size_hint_y: 0.15
+            #size_hint_x: 0.4
+            #pos_hint: {'top': 0.17, 'right': 0.7}
+
+            canvas.before:
+                Color:
+                    rgba: blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+        Label:
+            text: 'Welcome'
+            font_size: 32
+            pos_hint: {'top': 1, 'right': 0.7}
+            size_hint_y: 0.15
+            size_hint_x: 0.4
+
+        Button:
+            id: btnAdmin_kv
+            text: 'Use admin'
+
+            size_hint_y: 0.15
+            size_hint_x: 0.4
+            pos_hint: {'top': 0.17, 'right': 0.7}
+
+            on_press: root.adminBtn_pressed()
+

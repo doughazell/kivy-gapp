@@ -1,3 +1,6 @@
+# 22/6/18 DH: Wow, this took a long time to find was the problem (with no error messages...)
+#:include table.kv
+
 # Samsung Galaxy s6: W=1440 px, H=2560 px
 
 #:set red [1,0,0,1]
@@ -7,16 +10,17 @@
 
 #:set updateBtnTxt 'Update default order'
 
-<RootWidget>:
+<Sheets>:
     # https://kivy.org/docs/guide/lang.html:
     # At this point property is None due to 'ObjectProperty(None)' in class def.
     # Property is updated in Kv lang to hold the instance of the widget referenced by the id
 
-    # Property: id
-    btn1: btn1_kv
+    # Property: id    
     txt1: txt1_kv
     lbl1: lbl1_kv
     lbl2: lbl2_kv
+    btn1: btn1_kv
+    btnAdmin: btnAdmin_kv
 
     FloatLayout:
 
@@ -31,7 +35,9 @@
             pos_hint: {'top': 1}
 
             multiline: False
-            on_text_validate: root.on_enter(txt1_kv)
+            # Inside a kv file, 'root' refers to nearest parent with angle brackets.
+            #on_text_validate: root.on_enter(txt1_kv)
+            on_text_validate: root.on_enter()
 
         Label:
             id: lbl1_kv
@@ -67,7 +73,18 @@
 
             size_hint_y: 0.15
             size_hint_x: 0.4
-            pos_hint: {'top': 0.3, 'right': 0.7}
+            pos_hint: {'top': 0.35, 'right': 0.7}
 
             on_press: root.btn1_pressed(btn1_kv)
             on_release: root.btn1_released(btn1_kv)
+
+        Button:
+            id: btnAdmin_kv
+            text: 'Use table carousel'
+
+            size_hint_y: 0.15
+            size_hint_x: 0.4
+            pos_hint: {'top': 0.17, 'right': 0.7}
+
+            #on_press: root.adminBtn_pressed(btnAdmin_kv)
+            on_press: root.adminBtn_pressed()
