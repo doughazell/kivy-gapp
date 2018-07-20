@@ -1,36 +1,37 @@
-<Table>:
-    table_carousel: table_carousel_kv
+<Entry>:
+    entry_carousel: entry_carousel_kv
     btnAdmin: btnAdmin_kv
     btnEntry: btnEntry_kv
+    btnSave: btnSave_kv
     lblHd: lblHd_kv
 
     FloatLayout:
 
+        canvas.before:
+            Color:
+                rgba: green
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
         Carousel:
-            id: table_carousel_kv
+            id: entry_carousel_kv
 
             #direction: 'left'
 
-            #size_hint_y: 0.15
-            #size_hint_x: 0.4
-            #pos_hint: {'top': 0.7, 'right': 0.7}
-
-            canvas.before:
-                Color:
-                    rgba: blue
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
+            size_hint_y: 0.5
+            size_hint_x: 1
+            pos_hint: {'top': 0.9, 'right': 0.9}
 
         Button:
-            text: 'Delete'
+            id: btnSave_kv
+            text: 'Save'
 
-            size_hint_y: 0.1
-            size_hint_x: 0.15
-            pos_hint: {'top': 0.6, 'right': 0.99}
+            size_hint_y: 0.15
+            size_hint_x: 0.3
+            pos_hint: {'top': 0.4, 'right': 0.6}
 
-            on_press: root.delBtn_pressed()
-
+            on_press: root.saveBtn_pressed()
 
         Label:
             id: lblHd_kv
@@ -42,7 +43,7 @@
 
         Button:
             id: btnEntry_kv
-            text: 'Use entry screen'
+            text: 'Use table carousel'
 
             size_hint_y: 0.15
             size_hint_x: 0.4

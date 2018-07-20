@@ -25,6 +25,7 @@ import sys
 #Config.set('graphics', 'height', '2560')
 
 from table import Table
+from entry import Entry
 
 red = [1,0,0,1]
 green = [0,1,0,1]
@@ -50,7 +51,7 @@ class Sheets(Screen):
 
     #def adminBtn_pressed(self, instance):
     def adminBtn_pressed(self):
-        print('adminBtn_pressed')
+        #print('adminBtn_pressed')
         self.manager.transition = SlideTransition(direction="right")
         self.manager.current = 'display'
 
@@ -62,12 +63,17 @@ class Sheets(Screen):
 
             cols = self.txt1.text.split(",")
             for idx in range(0,table.record_num):
-
-                table.table_carousel.remove_widget(table.labels[idx])
+                # 8/7/18 DH: Can't remove a widget of a newly created record...!
+                try:
+                    table.table_carousel.remove_widget(table.labels[idx])
+                except IndexError:
+                    #print('idx: ' + str(idx) + ' newly created so no label to remove...')
+                    pass
 
                 lbl = Label()
 
                 values = table.list_of_dicts[idx]
+                #print values
 
                 for col in cols:
                     try:
@@ -81,9 +87,10 @@ class Sheets(Screen):
                         #lbl.text += self.colsDictDB[idx].get(int(col)) + '\n'
                         # ------------
                         #print('Recol: ' + col + '= ' + values.get(self.hdsIndexed.get(int(col))) )
-                        lbl.text += values.get(table.hdsIndexed.get(int(col))) + '\n'
+                        lbl.text += str( values.get(table.hdsIndexed.get(int(col))) ) + '\n'
                     except:
                         print(str(sys.exc_info()[1]))
+                        #raise
 
                 table.table_carousel.add_widget(lbl)
                 labelsNew.append(lbl)
@@ -101,7 +108,7 @@ class Sheets(Screen):
         except:
             self.lbl1.text='Error repopulating carousel!'
             # 29/5/18 DH: Debug only
-            #raise
+            raise
 
     def clearLabel1(self, dt):
         self.lbl1.text=''
@@ -163,7 +170,9 @@ class SheetsApp(App):
         manager.add_widget( table )
         table.populateCarousel(main)
 
-        #manager.add_widget( Entries(name='update') )
+        entry = Entry(name='update')
+        manager.add_widget( entry )
+        entry.populateFields()
 
         return manager
 
